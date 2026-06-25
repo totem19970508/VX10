@@ -1,0 +1,94 @@
+{
+  "location": {
+    "name": "Toronto",
+    "timezone": "America/Toronto"
+  },
+  "description": "Monthly average sunrise/sunset lookup for Toronto. Used as fallback when live API and local calculation are unavailable.",
+  "delta_note": "Schedule D remains controlled by a200_brightness_schedule.json.",
+  "months": {
+    "1": {
+      "month": "January",
+      "sunrise": "7:45 AM",
+      "sunset": "5:00 PM",
+      "average_day_length": "~9 hours, 15 mins",
+      "monthly_daylight_trend": "Gaining ~2 mins of light per day."
+    },
+    "2": {
+      "month": "February",
+      "sunrise": "7:10 AM",
+      "sunset": "5:40 PM",
+      "average_day_length": "~10 hours, 30 mins",
+      "monthly_daylight_trend": "Gaining ~2.5 mins of light per day."
+    },
+    "3": {
+      "month": "March (DST)",
+      "sunrise": "7:25 AM",
+      "sunset": "7:20 PM",
+      "average_day_length": "~11 hours, 55 mins",
+      "monthly_daylight_trend": "Gaining ~3 mins of light per day."
+    },
+    "4": {
+      "month": "April",
+      "sunrise": "6:30 AM",
+      "sunset": "8:00 PM",
+      "average_day_length": "~13 hours, 30 mins",
+      "monthly_daylight_trend": "Gaining ~2.5 mins of light per day."
+    },
+    "5": {
+      "month": "May",
+      "sunrise": "5:50 AM",
+      "sunset": "8:35 PM",
+      "average_day_length": "~14 hours, 45 mins",
+      "monthly_daylight_trend": "Gaining ~2 mins of light per day."
+    },
+    "6": {
+      "month": "June",
+      "sunrise": "5:35 AM",
+      "sunset": "9:00 PM",
+      "average_day_length": "~15 hours, 25 mins",
+      "monthly_daylight_trend": "Summer Solstice; peak annual daylight."
+    },
+    "7": {
+      "month": "July",
+      "sunrise": "5:50 AM",
+      "sunset": "8:50 PM",
+      "average_day_length": "~15 hours, 00 mins",
+      "monthly_daylight_trend": "Losing ~1.5 mins of light per day."
+    },
+    "8": {
+      "month": "August",
+      "sunrise": "6:25 AM",
+      "sunset": "8:15 PM",
+      "average_day_length": "~13 hours, 50 mins",
+      "monthly_daylight_trend": "Losing ~2.5 mins of light per day."
+    },
+    "9": {
+      "month": "September",
+      "sunrise": "7:00 AM",
+      "sunset": "7:20 PM",
+      "average_day_length": "~12 hours, 20 mins",
+      "monthly_daylight_trend": "Losing ~3 mins of light per day."
+    },
+    "10": {
+      "month": "October",
+      "sunrise": "7:35 AM",
+      "sunset": "6:30 PM",
+      "average_day_length": "~10 hours, 55 mins",
+      "monthly_daylight_trend": "Losing ~2.5 mins of light per day."
+    },
+    "11": {
+      "month": "November (ST)",
+      "sunrise": "7:15 AM",
+      "sunset": "4:50 PM",
+      "average_day_length": "~9 hours, 35 mins",
+      "monthly_daylight_trend": "Losing ~2 mins of light per day."
+    },
+    "12": {
+      "month": "December",
+      "sunrise": "7:45 AM",
+      "sunset": "4:45 PM",
+      "average_day_length": "~9 hours, 00 mins",
+      "monthly_daylight_trend": "Winter Solstice; lowest annual daylight."
+    }
+  }
+}
