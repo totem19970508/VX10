@@ -1,0 +1,78 @@
+{
+  "location": {
+    "name": "Toronto",
+    "latitude": 43.6532,
+    "longitude": -79.3832,
+    "timezone": "America/Toronto"
+  },
+  "sun_api": {
+    "enabled": false,
+    "url": "https://api.sunrise-sunset.org/json",
+    "timeout_seconds": 8,
+    "example_full_request": "https://api.sunrise-sunset.org/json?lat=43.6532&lng=-79.3832&date=today&formatted=0&tzid=America/Toronto"
+  },
+  "fallback_sun_times": {
+    "sunrise": "06:00",
+    "sunset": "20:00"
+  },
+  "network": {
+    "ip_address": "10.0.1.182",
+    "tcp": {
+      "enabled": true,
+      "port": 6000
+    },
+    "udp": {
+      "enabled": true,
+      "port": 6001
+    }
+  },
+  "apply_schedule_on_startup": true,
+  "auto_refresh_seconds": 1,
+  "pc_time_refresh_seconds": 1,
+  "delta_hours": 0.5,
+  "test_pc_time": "",
+  "schedule": [
+    {
+      "name": "a - Late night off",
+      "start": { "time": "23:00" },
+      "end": { "time": "00:00" },
+      "brightness_percent": 0
+    },
+    {
+      "name": "b - Overnight off",
+      "start": { "time": "00:00" },
+      "end": { "anchor": "SR", "offset_hours": "D" },
+      "brightness_percent": 0
+    },
+    {
+      "name": "c - Sunrise ramp",
+      "start": { "anchor": "SR", "offset_hours": "D" },
+      "end": { "anchor": "SR", "offset_hours": "2D" },
+      "brightness_percent": 10
+    },
+    {
+      "name": "d - Morning ramp",
+      "start": { "anchor": "SR", "offset_hours": "2D" },
+      "end": { "anchor": "SR", "offset_hours": "3D" },
+      "brightness_percent": 20
+    },
+    {
+      "name": "e - Business day",
+      "start": { "anchor": "SR", "offset_hours": "3D" },
+      "end": { "anchor": "SS", "offset_hours": "-2D" },
+      "brightness_percent": 65
+    },
+    {
+      "name": "f - Sunset prep",
+      "start": { "anchor": "SS", "offset_hours": "-2D" },
+      "end": { "anchor": "SS" },
+      "brightness_percent": 50
+    },
+    {
+      "name": "g - After sunset low",
+      "start": { "anchor": "SS" },
+      "end": { "time": "23:00" },
+      "brightness_percent": 3
+    }
+  ]
+}
