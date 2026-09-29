@@ -1,19 +1,19 @@
-# A200 Program Architecture
+# VX10 Program Architecture
 
-This document explains the architecture of the A200 brightness control program using Mermaid diagrams.
+This document explains the architecture of the VX10 brightness control program using Mermaid diagrams.
 
 The current project has two main Python entry points:
 
-- `A200-brightness -2 (protocol).py`: the main Tkinter desktop app and A200 protocol/schedule engine.
-- `a200_web_app.py`: a small HTTP server that imports the protocol module and exposes browser/API endpoints.
+- `VX10-brightness -2 (protocol).py`: the main Tkinter desktop app and VX10 protocol/schedule engine.
+- `vx10_web_app.py`: a small HTTP server that imports the protocol module and exposes browser/API endpoints.
 
 The shared data/config files are:
 
-- `a200_brightness_schedule.json`
+- `vx10_brightness_schedule.json`
 - `Civil Twilight (Toronto).json`
 - `Company_logo.png`
 
-> Note: `a200_web_app.py` expects a `web/` folder for static browser files, but that folder is not currently present in this repo root.
+> Note: `vx10_web_app.py` expects a `web/` folder for static browser files, but that folder is not currently present in this repo root.
 
 ## 1. High-Level System Architecture
 
@@ -21,17 +21,17 @@ The shared data/config files are:
 flowchart LR
     User[User / Operator]
     Browser[Browser UI]
-    WebApp[a200_web_app.py\nThreadingHTTPServer]
-    TkApp[A200-brightness -2\nTkinter Desktop App]
-    Protocol[A200 Protocol Module\nshared functions]
-    ScheduleJson[(a200_brightness_schedule.json)]
+    WebApp[vx10_web_app.py\nThreadingHTTPServer]
+    TkApp[VX10-brightness -2\nTkinter Desktop App]
+    Protocol[VX10 Protocol Module\nshared functions]
+    ScheduleJson[(vx10_brightness_schedule.json)]
     TwilightJson[(Civil Twilight Toronto JSON)]
     SunAPI[Optional Sunrise/Sunset API]
     LocalCalc[Local Sun Calculation]
-    A200HTTP[A200 HTTP API\nbrightness/color temp]
+    VX10HTTP[VX10 HTTP API\nbrightness/color temp]
     TCP[TCP Socket\nport 6000]
     UDP[UDP Socket\nport 6001]
-    A200[Colorlight A200 Controller]
+    VX10[Colorlight VX10 Controller]
     Display[LED Display]
 
     User --> TkApp
@@ -46,34 +46,34 @@ flowchart LR
     Protocol --> SunAPI
     Protocol --> LocalCalc
 
-    Protocol --> A200HTTP
+    Protocol --> VX10HTTP
     Protocol --> TCP
     Protocol --> UDP
 
-    A200HTTP --> A200
-    TCP --> A200
-    UDP --> A200
-    A200 --> Display
+    VX10HTTP --> VX10
+    TCP --> VX10
+    UDP --> VX10
+    VX10 --> Display
 ```
 
 ## 2. Main Module Responsibilities
 
 ```mermaid
 flowchart TB
-    subgraph ProtocolFile["A200-brightness -2 (protocol).py"]
+    subgraph ProtocolFile["VX10-brightness -2 (protocol).py"]
         Config[Config Loading\nload_schedule_config\nget_network_config]
         Time[Time + Sun Resolver\nget_pc_now\nfetch_sun_times\nfallback_sun_times]
         Schedule[Schedule Engine\nbuild_schedule_intervals\nfind_active_interval]
         Brightness[Brightness Logic\nset_brightness\nget_brightness\npercent_to_nits]
         Network[Network Protocol\nbuild_frame\nsend_tcp\nsend_udp\nsend_command]
-        HTTP[A200 HTTP Reader\nget_display_color_temperature]
+        HTTP[VX10 HTTP Reader\nget_display_color_temperature]
         DesktopGUI[Tkinter GUI\ncreate_gui]
     end
 
-    subgraph WebFile["a200_web_app.py"]
-        Importer[Dynamic Import\nload_a200_module]
+    subgraph WebFile["vx10_web_app.py"]
+        Importer[Dynamic Import\nload_vx10_module]
         StateAPI[State Builder\nbuild_state]
-        Handler[HTTP Handler\nA200WebHandler]
+        Handler[HTTP Handler\nVX10WebHandler]
         Server[ThreadingHTTPServer\nmain]
     end
 
@@ -111,8 +111,8 @@ sequenceDiagram
     participant Config as Schedule Config
     participant Sun as Sun Resolver
     participant Engine as Schedule Engine
-    participant Protocol as A200 Protocol
-    participant A200 as A200 Controller
+    participant Protocol as VX10 Protocol
+    participant VX10 as VX10 Controller
 
     User->>GUI: Open desktop app
     GUI->>GUI: acquire_single_instance_lock()
@@ -125,8 +125,8 @@ sequenceDiagram
     GUI->>GUI: update labels, table, timeline, nits
     alt Apply schedule on startup or active rule changed
         GUI->>Protocol: set_brightness(mode, percent)
-        Protocol->>A200: TCP or UDP framed command
-        A200-->>Protocol: optional reply
+        Protocol->>VX10: TCP or UDP framed command
+        VX10-->>Protocol: optional reply
         Protocol-->>GUI: applied brightness percent
     end
 ```
@@ -140,19 +140,19 @@ if __name__ == "__main__":
     main()
 ```
 
-`a200_web_app.py` dynamically imports the main protocol file:
+`vx10_web_app.py` dynamically imports the main protocol file:
 
 ```python
-APP_FILE = BASE_DIR / "A200-brightness -2 (protocol).py"
+APP_FILE = BASE_DIR / "VX10-brightness -2 (protocol).py"
 ```
 
 ```mermaid
 sequenceDiagram
     participant Browser
-    participant Web as a200_web_app.py
-    participant Protocol as Imported A200 Module
+    participant Web as vx10_web_app.py
+    participant Protocol as Imported VX10 Module
     participant Config as JSON Config
-    participant A200 as A200 Controller
+    participant VX10 as VX10 Controller
 
     Browser->>Web: GET /
     Web-->>Browser: static index.html from web folder
@@ -164,13 +164,13 @@ sequenceDiagram
     Web->>Protocol: build_schedule_intervals()
     Web->>Protocol: find_active_interval()
     Web->>Protocol: percent_to_nits()
-    Protocol->>Config: read a200_brightness_schedule.json
+    Protocol->>Config: read vx10_brightness_schedule.json
     Web-->>Browser: JSON state payload
 
     Browser->>Web: POST /api/brightness
     Web->>Protocol: set_brightness(mode, percent)
-    Protocol->>A200: send TCP/UDP command
-    A200-->>Protocol: optional reply
+    Protocol->>VX10: send TCP/UDP command
+    VX10-->>Protocol: optional reply
     Web-->>Browser: JSON brightness result
 ```
 
@@ -222,7 +222,7 @@ flowchart TD
     Mode{Mode}
     TCP[send_tcp]
     UDP[send_udp]
-    A200[A200 Controller]
+    VX10[VX10 Controller]
     Reply[Optional reply]
     Status[Update GUI/API status]
 
@@ -233,9 +233,9 @@ flowchart TD
     Frame --> Mode
     Mode -->|TCP| TCP
     Mode -->|UDP| UDP
-    TCP --> A200
-    UDP --> A200
-    A200 --> Reply
+    TCP --> VX10
+    UDP --> VX10
+    VX10 --> Reply
     Reply --> Status
 ```
 
@@ -254,12 +254,12 @@ The frame format is:
 0x02 + protocol flag + ASCII command + 0x03 + 0x32
 ```
 
-## 7. API Endpoints in `a200_web_app.py`
+## 7. API Endpoints in `vx10_web_app.py`
 
 ```mermaid
 flowchart LR
     Browser[Browser / Client]
-    Handler[A200WebHandler]
+    Handler[VX10WebHandler]
     State[/GET /api/state/]
     BrightRead[/GET /api/brightness?mode=TCP/]
     BrightWrite[/POST /api/brightness/]
@@ -285,18 +285,18 @@ Endpoint summary:
 | --- | --- | --- |
 | `/` | `GET` | Serves `web/index.html` |
 | `/api/state` | `GET` | Returns current schedule, sun times, active rule, nits, and network config |
-| `/api/brightness?mode=TCP` | `GET` | Reads current A200 brightness using TCP or UDP |
-| `/api/brightness` | `POST` | Sets A200 brightness from JSON body |
-| `/api/color-temp` | `GET` | Reads brightness/color temperature from A200 HTTP API |
+| `/api/brightness?mode=TCP` | `GET` | Reads current VX10 brightness using TCP or UDP |
+| `/api/brightness` | `POST` | Sets VX10 brightness from JSON body |
+| `/api/color-temp` | `GET` | Reads brightness/color temperature from VX10 HTTP API |
 | `/company_logo.png` | `GET` | Serves company logo |
 
 ## 8. Important Runtime Files
 
 ```mermaid
 flowchart TB
-    Schedule[(a200_brightness_schedule.json)]
+    Schedule[(vx10_brightness_schedule.json)]
     Twilight[(Civil Twilight Toronto JSON)]
-    Lock[(.a200_brightness_schedule.lock)]
+    Lock[(.vx10_brightness_schedule.lock)]
     Logo[(Company_logo.png)]
     WebFolder[(web folder\nexpected by web app)]
 
@@ -309,25 +309,25 @@ flowchart TB
 
 | File | Used by | Purpose |
 | --- | --- | --- |
-| `a200_brightness_schedule.json` | Desktop app and web app | Main schedule, location, network, and refresh configuration |
+| `vx10_brightness_schedule.json` | Desktop app and web app | Main schedule, location, network, and refresh configuration |
 | `Civil Twilight (Toronto).json` | Protocol module | Monthly sunrise/sunset fallback data |
-| `.a200_brightness_schedule.lock` | Desktop app | Prevents multiple desktop app instances |
+| `.vx10_brightness_schedule.lock` | Desktop app | Prevents multiple desktop app instances |
 | `Company_logo.png` | Desktop/web app | UI branding/logo |
-| `web/` | Web app | Static frontend folder expected by `a200_web_app.py` |
+| `web/` | Web app | Static frontend folder expected by `vx10_web_app.py` |
 
 ## 9. Summary
 
 The program is built around one shared protocol/schedule module:
 
 ```text
-A200-brightness -2 (protocol).py
+VX10-brightness -2 (protocol).py
 ```
 
 That module handles:
 
-- A200 TCP/UDP command framing
+- VX10 TCP/UDP command framing
 - brightness reads/writes
-- A200 HTTP color temperature reads
+- VX10 HTTP color temperature reads
 - schedule JSON loading
 - sunrise/sunset resolution
 - active rule calculation
@@ -337,7 +337,7 @@ That module handles:
 The web app:
 
 ```text
-a200_web_app.py
+vx10_web_app.py
 ```
 
 imports that same module and exposes the same behavior through local HTTP endpoints.

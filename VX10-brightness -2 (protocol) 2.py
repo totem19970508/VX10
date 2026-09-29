@@ -1,8 +1,8 @@
 """
-Colorlight A200 brightness scheduler and monitor.
+Colorlight VX10 brightness scheduler and monitor.
 (Version 1.0)
 Task summary:
-- Send brightness commands to the A200 over TCP or UDP.
+- Send brightness commands to the VX10 over TCP or UDP.
 - Load a daily brightness schedule from a JSON file.
 - Resolve sunrise (SR) and sunset (SS) times for timeline-based rules.
 - Show the active schedule, nits estimate, color temperature, and timeline.
@@ -36,9 +36,9 @@ else:
     APP_DIR = Path(__file__).resolve().parent
 BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", APP_DIR))
 
-SCHEDULE_FILE = APP_DIR / "a200_brightness_schedule.json"
+SCHEDULE_FILE = APP_DIR / "vx10_brightness_schedule.json"
 CIVIL_TWILIGHT_FILE = APP_DIR / "Civil Twilight (Toronto).json"
-LOCK_FILE = APP_DIR / ".a200_brightness_schedule.lock"
+LOCK_FILE = APP_DIR / ".vx10_brightness_schedule.lock"
 LOGO_FILE = APP_DIR / "company_logo.png"
 FALLBACK_LOGO_FILE = APP_DIR / "Company_logo.png"
 LOGO_CANDIDATES = (
@@ -209,7 +209,7 @@ DEFAULT_CIVIL_TWILIGHT = {
         "timezone": "America/Toronto",
     },
     "description": "Monthly average sunrise/sunset lookup for Toronto. Used as fallback when live API and local calculation are unavailable.",
-    "delta_note": "Schedule D remains controlled by a200_brightness_schedule.json.",
+    "delta_note": "Schedule D remains controlled by vx10_brightness_schedule.json.",
     "months": {
         "1": {
             "month": "January",
@@ -835,11 +835,11 @@ def acquire_single_instance_lock():
 def create_gui():
     lock_ok, lock_pid = acquire_single_instance_lock()
     if not lock_ok:
-        print(f"A200 schedule app is already running with PID {lock_pid}.")
+        print(f"VX10 schedule app is already running with PID {lock_pid}.")
         return
 
     root = tk.Tk()
-    root.title(f"Colorlight A200 Brightness Schedule Control - Layout V4 - PID {os.getpid()}")
+    root.title(f"Colorlight VX10 Brightness Schedule Control - Layout V4 - PID {os.getpid()}")
     root.geometry("1000x760")
     root.minsize(1000, 760)
     root.configure(bg=APP_BG)
@@ -1031,7 +1031,7 @@ def create_gui():
             status_var.set("Failed")
 
     def read_display_color_temperature():
-        # Task: read the A200 HTTP API for brightness and color temperature.
+        # Task: read the VX10 HTTP API for brightness and color temperature.
         try:
             reading = get_display_color_temperature()
             brightness = reading.get("brightness")
@@ -1430,7 +1430,7 @@ def create_gui():
                     )
                 except Exception as e:
                     status_var.set(
-                        f"{source} schedule loaded, but A200 brightness was not applied: {e}"
+                        f"{source} schedule loaded, but VX10 brightness was not applied: {e}"
                     )
             else:
                 if update_status:
@@ -1512,7 +1512,7 @@ def create_gui():
             )
         except Exception as e:
             status_var.set(
-                f"PC time found active schedule, but A200 brightness was not applied: {e}"
+                f"PC time found active schedule, but VX10 brightness was not applied: {e}"
             )
 
     def build_clock_snapshot():

@@ -4,7 +4,7 @@
     "timezone": "America/Toronto"
   },
   "description": "Monthly average sunrise/sunset lookup for Toronto. Used as fallback when live API and local calculation are unavailable.",
-  "delta_note": "Schedule D remains controlled by a200_brightness_schedule.json.",
+  "delta_note": "Schedule D remains controlled by vx10_brightness_schedule.json.",
   "months": {
     "1": {
       "month": "January",

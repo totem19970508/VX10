@@ -58,13 +58,13 @@ def set_brightness(percent):
 
 def create_gui():
     root = tk.Tk()
-    root.title("A200 REST API Brightness Control")
+    root.title("VX10 REST API Brightness Control")
     root.geometry("500x300")
 
     frame = ttk.Frame(root, padding=10)
     frame.pack(fill=tk.BOTH, expand=True)
 
-    ttk.Label(frame, text=f"A200 IP: {IP}").pack()
+    ttk.Label(frame, text=f"VX10 IP: {IP}").pack()
     ttk.Label(frame, text="REST API Brightness Control").pack()
 
     status = tk.StringVar(value="Starting...")

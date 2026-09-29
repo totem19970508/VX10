@@ -2,7 +2,7 @@ import socket
 import requests
 
 
-class A200:
+class VX10:
     def __init__(self, ip, username="admin", password="", timeout=3):
         self.ip = ip
         self.username = username

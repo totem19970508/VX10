@@ -1,6 +1,6 @@
-from a200 import A200
+from vx10 import VX10
 
-a = A200(
+a = VX10(
     ip="10.0.1.182",
     username="admin",
     password="YOUR_PASSWORD"

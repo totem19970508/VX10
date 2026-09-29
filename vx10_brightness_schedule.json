@@ -16,7 +16,7 @@
     "sunset": "20:00"
   },
   "network": {
-    "ip_address": "10.0.1.182",
+    "ip_address": "192.168.1.88",
     "tcp": {
       "enabled": true,
       "port": 6000

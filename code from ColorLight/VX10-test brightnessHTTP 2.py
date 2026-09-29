@@ -93,7 +93,7 @@ def send_udp(value):
 def main():
     while True:
         print("\n==============================")
-        print("A200 Brightness Protocol Test")
+        print("VX10 Brightness Protocol Test")
         print("==============================")
         print("1 = TCP")
         print("2 = UDP")

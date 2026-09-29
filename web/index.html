@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101719">
+  <title>VX10 | Brightness Console</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #101719;
+      --surface: #172124;
+      --surface-raised: #1d2a2e;
+      --line: #344348;
+      --paper: #edf3f0;
+      --muted: #9aaba8;
+      --coral: #f06a54;
+      --lime: #c7ee75;
+      --gold: #f2c46b;
+      --danger: #ff867a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--ink);
+      background-image: repeating-linear-gradient(135deg, transparent 0 23px, rgb(255 255 255 / 2%) 24px 25px);
+      color: var(--paper);
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .shell { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+    .topline { height: 4px; background: linear-gradient(90deg, var(--coral) 0 22%, var(--gold) 22% 31%, var(--lime) 31% 100%); }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 25px 0 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      aspect-ratio: 1;
+      border: 1px solid var(--coral);
+      color: var(--coral);
+      font: 700 13px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0;
+    }
+    .brand h1 { margin: 0; font: 600 20px Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    .connection { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 12px; }
+    .led { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 12px currentColor; }
+    .led.online { background: var(--lime); }
+    .led.offline { background: var(--danger); }
+
+    main { padding: 28px 0 52px; }
+    .eyebrow { margin: 0 0 8px; color: var(--coral); font: 600 11px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
+    .intro h2 { margin: 0; font: 500 30px Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    .intro-meta { color: var(--muted); text-align: right; line-height: 1.6; }
+    .intro-meta strong { color: var(--paper); font-weight: 500; }
+
+    .dashboard { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(290px, .85fr); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .schedule-panel, .control-panel { min-width: 0; padding: 24px; }
+    .schedule-panel { border-right: 1px solid var(--line); }
+    .panel-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .panel-heading h3 { margin: 0; font: 500 18px Georgia, "Times New Roman", serif; letter-spacing: 0; }
+    .panel-heading span { color: var(--muted); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .active-block { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 10px; padding: 17px 0 22px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .active-label { color: var(--muted); font-size: 12px; }
+    .active-name { display: block; margin-top: 5px; color: var(--paper); font-weight: 600; }
+    .active-value { color: var(--lime); font: 500 42px ui-monospace, SFMono-Regular, Menlo, monospace; line-height: 1; }
+    .active-value small { color: var(--muted); font-size: 16px; }
+
+    .sunline { display: flex; gap: 26px; margin: 18px 0 22px; color: var(--muted); }
+    .sunline strong { display: block; margin-top: 4px; color: var(--gold); font: 14px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 9px 10px; color: var(--muted); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; }
+    td { padding: 11px 10px; border-top: 1px solid rgb(255 255 255 / 7%); white-space: nowrap; }
+    td:first-child { max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+    td:last-child, th:last-child { text-align: right; }
+    tr.is-active td { color: var(--lime); background: rgb(199 238 117 / 5%); }
+    .empty-row { color: var(--muted); }
+
+    .control-panel { background: rgb(29 42 46 / 52%); }
+    .control-panel .panel-heading { margin-bottom: 24px; }
+    .field-label { display: block; margin-bottom: 9px; color: var(--muted); font-size: 12px; }
+    .mode-group { display: inline-flex; margin-bottom: 23px; border: 1px solid var(--line); }
+    .mode-group label { position: relative; padding: 9px 17px; color: var(--muted); cursor: pointer; }
+    .mode-group label + label { border-left: 1px solid var(--line); }
+    .mode-group input { position: absolute; opacity: 0; }
+    .mode-group label:has(input:checked) { background: var(--paper); color: var(--ink); }
+    .mode-group label:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    .slider-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    .slider-head output { color: var(--paper); font: 18px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    input[type="range"] { width: 100%; accent-color: var(--coral); }
+    .range-scale { display: flex; justify-content: space-between; margin-top: 3px; color: var(--muted); font: 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .button {
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--paper);
+      transition: background-color .15s ease, border-color .15s ease;
+    }
+    .button:hover:not(:disabled) { border-color: var(--paper); background: var(--surface-raised); }
+    .button.primary { border-color: var(--coral); background: var(--coral); color: var(--ink); font-weight: 700; }
+    .button.primary:hover:not(:disabled) { border-color: #ff927f; background: #ff927f; }
+    .button:disabled { cursor: wait; opacity: .55; }
+
+    .readouts { display: grid; grid-template-columns: 1fr 1fr; margin-top: 25px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .readout { min-height: 76px; padding: 14px 12px 14px 0; }
+    .readout + .readout { padding-left: 14px; border-left: 1px solid var(--line); }
+    .readout span { display: block; color: var(--muted); font-size: 11px; }
+    .readout strong { display: block; margin-top: 8px; color: var(--paper); font: 15px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .notice { min-height: 20px; margin: 14px 0 0; color: var(--muted); font-size: 12px; }
+    .notice.error { color: var(--danger); }
+
+    footer { display: flex; justify-content: space-between; gap: 18px; padding: 17px 0; color: var(--muted); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 24px, 560px); }
+      header { align-items: flex-start; }
+      .intro { align-items: flex-start; flex-direction: column; }
+      .intro-meta { text-align: left; }
+      .dashboard { grid-template-columns: 1fr; }
+      .schedule-panel { border-right: 0; border-bottom: 1px solid var(--line); }
+      .schedule-panel, .control-panel { padding: 20px 16px; }
+      .active-value { font-size: 36px; }
+      footer { flex-direction: column; gap: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <div class="topline" aria-hidden="true"></div>
+  <div class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">VX10</div>
+        <div>
+          <h1>Brightness console</h1>
+          <p>Colorlight display control</p>
+        </div>
+      </div>
+      <div class="connection" role="status" aria-live="polite">
+        <span class="led" id="connection-led"></span>
+        <span id="connection-text">Connecting</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro" aria-label="Controller overview">
+        <div>
+          <p class="eyebrow">Schedule monitor / 01</p>
+          <h2 id="location-heading">VX10 daily schedule</h2>
+        </div>
+        <div class="intro-meta">
+          <div>Controller <strong id="device-ip">--</strong></div>
+          <div>Local time <strong id="current-time">Waiting for data</strong></div>
+        </div>
+      </section>
+
+      <div class="dashboard">
+        <section class="schedule-panel" aria-labelledby="schedule-title">
+          <div class="panel-heading">
+            <h3 id="schedule-title">Today's schedule</h3>
+            <span id="schedule-date">--</span>
+          </div>
+          <div class="active-block">
+            <div>
+              <span class="active-label">Active interval</span>
+              <strong class="active-name" id="active-name">Waiting for schedule</strong>
+            </div>
+            <div class="active-value"><span id="active-brightness">--</span><small>%</small></div>
+          </div>
+          <div class="sunline" aria-label="Sun times">
+            <div>Sunrise<strong id="sunrise">--:--</strong></div>
+            <div>Sunset<strong id="sunset">--:--</strong></div>
+            <div>Source<strong id="sun-source">--</strong></div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Interval</th><th scope="col">Time</th><th scope="col">Level</th></tr></thead>
+              <tbody id="schedule-rows"><tr><td class="empty-row" colspan="3">Loading schedule...</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="control-panel" aria-labelledby="control-title">
+          <div class="panel-heading">
+            <h3 id="control-title">Manual control</h3>
+            <span>TCP / UDP</span>
+          </div>
+          <span class="field-label" id="mode-label">Command transport</span>
+          <div class="mode-group" role="radiogroup" aria-labelledby="mode-label">
+            <label><input type="radio" name="mode" value="TCP" checked>TCP</label>
+            <label><input type="radio" name="mode" value="UDP">UDP</label>
+          </div>
+
+          <div class="slider-head">
+            <label class="field-label" for="brightness-slider">Brightness target</label>
+            <output id="brightness-output" for="brightness-slider">50%</output>
+          </div>
+          <input id="brightness-slider" type="range" min="0" max="100" step="1" value="50" aria-describedby="range-scale">
+          <div class="range-scale" id="range-scale"><span>0%</span><span>50%</span><span>100%</span></div>
+
+          <div class="button-row">
+            <button class="button primary" id="apply-button" type="button">Apply level</button>
+            <button class="button" id="read-button" type="button">Read device</button>
+            <button class="button" id="temperature-button" type="button">Read color temp</button>
+          </div>
+
+          <div class="readouts">
+            <div class="readout"><span>Device brightness</span><strong id="device-brightness">Not read</strong></div>
+            <div class="readout"><span>Color temperature</span><strong id="color-temperature">Not read</strong></div>
+          </div>
+          <p class="notice" id="notice" aria-live="polite">Schedule updates automatically.</p>
+        </section>
+      </div>
+
+      <footer>
+        <span id="network-info">Network configuration loading...</span>
+        <span id="last-updated">No update yet</span>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const byId = (id) => document.getElementById(id);
+    const slider = byId("brightness-slider");
+    const output = byId("brightness-output");
+    const notice = byId("notice");
+    let refreshDelay = 5000;
+
+    function selectedMode() {
+      return document.querySelector('input[name="mode"]:checked').value;
+    }
+
+    function setNotice(message, isError = false) {
+      notice.textContent = message;
+      notice.classList.toggle("error", isError);
+    }
+
+    async function requestJson(url, options = {}) {
+      const response = await fetch(url, options);
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || `Request failed (${response.status})`);
+      return payload;
+    }
+
+    function renderSchedule(items) {
+      const body = byId("schedule-rows");
+      body.replaceChildren();
+      if (!items.length) {
+        const row = body.insertRow();
+        const cell = row.insertCell();
+        cell.colSpan = 3;
+        cell.className = "empty-row";
+        cell.textContent = "No schedule intervals for today.";
+        return;
+      }
+
+      for (const item of items) {
+        const row = body.insertRow();
+        if (item.active) row.className = "is-active";
+        const name = row.insertCell();
+        const time = row.insertCell();
+        const level = row.insertCell();
+        name.textContent = item.label || item.name;
+        name.title = item.name;
+        time.textContent = item.schedule_text;
+        level.textContent = item.brightness_text;
+      }
+    }
+
+    function renderState(state) {
+      byId("connection-led").className = "led online";
+      byId("connection-text").textContent = "Server connected";
+      byId("location-heading").textContent = `${state.location} / brightness schedule`;
+      byId("device-ip").textContent = state.network.ip_address;
+      byId("current-time").textContent = state.now_text;
+      byId("schedule-date").textContent = state.today;
+      byId("sunrise").textContent = state.sun.sr_text;
+      byId("sunset").textContent = state.sun.ss_text;
+      byId("sun-source").textContent = state.sun.source;
+      byId("active-name").textContent = state.active ? state.active.name : "No active interval";
+      byId("active-brightness").textContent = state.active ? state.active.brightness_percent : "--";
+      byId("network-info").textContent = `TCP ${state.network.tcp_port} / UDP ${state.network.udp_port}`;
+      byId("last-updated").textContent = `Updated ${new Date().toLocaleTimeString()}`;
+      renderSchedule(state.schedule || []);
+      refreshDelay = Math.max(5000, Math.min(60000, Number(state.refresh_seconds || 5) * 1000));
+      if (state.active && document.activeElement !== slider) {
+        slider.value = state.active.brightness_percent;
+        output.value = `${slider.value}%`;
+      }
+    }
+
+    async function refreshState() {
+      try {
+        renderState(await requestJson("/api/state"));
+        setNotice("Schedule updates automatically.");
+      } catch (error) {
+        byId("connection-led").className = "led offline";
+        byId("connection-text").textContent = "Server unavailable";
+        setNotice(error.message, true);
+      } finally {
+        window.setTimeout(refreshState, refreshDelay);
+      }
+    }
+
+    slider.addEventListener("input", () => { output.value = `${slider.value}%`; });
+
+    byId("apply-button").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      setNotice(`Sending ${slider.value}% over ${selectedMode()}...`);
+      try {
+        const result = await requestJson("/api/brightness", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: selectedMode(), percent: Number(slider.value) }),
+        });
+        byId("device-brightness").textContent = result.brightness_text || `${result.brightness}%`;
+        setNotice("Brightness command applied.");
+      } catch (error) {
+        setNotice(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    byId("read-button").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      setNotice(`Reading brightness over ${selectedMode()}...`);
+      try {
+        const result = await requestJson(`/api/brightness?mode=${encodeURIComponent(selectedMode())}`);
+        byId("device-brightness").textContent = `${result.brightness}%`;
+        slider.value = result.brightness;
+        output.value = `${result.brightness}%`;
+        setNotice("Device brightness read successfully.");
+      } catch (error) {
+        setNotice(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    byId("temperature-button").addEventListener("click", async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      setNotice("Reading color temperature...");
+      try {
+        const result = await requestJson("/api/color-temp");
+        byId("color-temperature").textContent = result.color_temperature ?? "Unavailable";
+        setNotice("Color temperature read successfully.");
+      } catch (error) {
+        setNotice(error.message, true);
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    refreshState();
+  </script>
+</body>
+</html>
